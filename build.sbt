@@ -1,6 +1,12 @@
-name := "Akka play ground"
+import AssemblyKeys._ // Assembly plugin settings
 
-version := "1.0"
+assemblySettings
+
+jarName in assembly := "transfero.jar"
+
+name := "transfero"
+
+version := "0.1"
 
 scalaVersion := "2.10.2"
 
