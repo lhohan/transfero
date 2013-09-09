@@ -20,11 +20,6 @@ import scala.collection.JavaConversions._
  * A contrived code sample that monitors a file location
  * and when files are found they are copied/moved to different location.
  *
- * Usage:
- *
- * Example:
- * sbt "run-main LocationMonitorMain"
- *
  */
 
 object LocationMonitorMain extends App {
@@ -54,8 +49,10 @@ object LocationMonitorMain extends App {
     }
 
     if (!Files.exists(configFile)) {
-      throw new IllegalArgumentException("Monitor config file is missing. " +
-        "Either provide an existing file as argument or create 'monitor.config'.")
+      throw new IllegalArgumentException("Monitor config file is missing.\n" +
+        "Create a 'monitor.config' file. Example content:\n" +
+        "\tCopy,src/test/resources/file-copy-test-dir/src,target\n" +
+        "\tMove,src/test/resources/file-move-test-dir/src,target")
     }
 
     //TODO : try to improve :
@@ -77,21 +74,6 @@ object LocationMonitorMain extends App {
           }
     }
     configs.toList
-  }
-
-  def testSetup: List[MonitorConfig] = {
-    val config1: MonitorConfig = new MonitorConfig(
-      "src/test/resources/file-copy-test-dir/src",
-      "target",
-      Copy
-    )
-
-    val config2: MonitorConfig = new MonitorConfig(
-      "src/test/resources/file-move-test-dir",
-      "E:\\dev\\github\\scala-pg\\akka\\src\\test\\resources\\file-copy-test-dir\\src",
-      Move
-    )
-    config1 :: config2 :: Nil
   }
 
 }
