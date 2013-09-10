@@ -58,27 +58,33 @@ object LocationMonitorMain extends App {
     //TODO : try to improve :
 
     val lines: Iterator[String] = Source.fromFile(configFile.toFile).getLines()
-      .map{_.trim}
-      .filter{!_.isEmpty}
-      .filter{!_.startsWith("#") }
+      .map {
+      _.trim
+    }
+      .filter {
+      !_.isEmpty
+    }
+      .filter {
+      !_.startsWith("#")
+    }
 
     val configs = new ArrayBuffer[MonitorConfig]()
     for (configLine <- lines) {
-        ld("reading config line: " + configLine)
-          val config: Array[String] = configLine.split(",")
-          try {
-            configs += new MonitorConfig(config(1), config(2), toProcessingType(config(0)))
-          } catch {
-            case e: Throwable =>
-              li("Error reading config line: \n" + configLine + "\n => Error is: " + e.getMessage)
-          }
+      ld("reading config line: " + configLine)
+      val config: Array[String] = configLine.split(",")
+      try {
+        configs += new MonitorConfig(config(1), config(2), toProcessingType(config(0)))
+      } catch {
+        case e: Throwable =>
+          li("Error reading config line: \n" + configLine + "\n => Error is: " + e.getMessage)
+      }
     }
     configs.toList
   }
 
 }
 
-case class MonitorConfig(srcLocation: String, targetLocation: String, processingType: ProcessingType)
+case class MonitorConfig(srcLocation: String, targetLocation: String, processingType: ProcessingType, filter: String = null)
 
 
 object FileProcessor {
@@ -154,10 +160,10 @@ object FileProcessor {
 
 }
 
-class FileProcessor(val monitorLoc: String, val targetLoc: String, val processingType: ProcessingType) {
+class FileProcessor(config: MonitorConfig) {
 
-  val monitorLocation = Paths.get(monitorLoc)
-  val targetLocation = Paths.get(targetLoc)
+  val monitorLocation = Paths.get(config.srcLocation)
+  val targetLocation = Paths.get(config.targetLocation)
 
   if (!Files.isDirectory(monitorLocation)) {
     throw new IllegalArgumentException("Location to monitor [" + monitorLocation + "]should be directory.")
@@ -166,12 +172,9 @@ class FileProcessor(val monitorLoc: String, val targetLoc: String, val processin
     throw new IllegalArgumentException("Target location [" + targetLocation + "]should be directory.")
   }
 
-  def this(config: MonitorConfig) = this(config.srcLocation, config.targetLocation, config.processingType)
-
-
   def monitor() {
     val locationMonitor = system.actorOf(Props(
-      new LocationMonitor(monitorLocation, targetLocation, processingType, fileCopier)
+      new LocationMonitor(monitorLocation, targetLocation, config.processingType, fileCopier)
     ), name = "locationMonitor-" + monitorCounter.incrementAndGet())
     locationMonitor ! StartMonitoring()
   }
