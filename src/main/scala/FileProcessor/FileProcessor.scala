@@ -142,7 +142,7 @@ object FileProcessor {
 
 
   // logging
-  val IsDebugEnabled = false
+  val IsDebugEnabled = true
   val IsInfoEnabled = true
 
   // quick log debug
@@ -189,7 +189,11 @@ class FileProcessor(config: MonitorConfig) {
         for (event <- watchKey.pollEvents()) {
           val path = event.context().asInstanceOf[Path]
           ld("watcher found: " + path)
-          fileProcessor ! processingType.command(location.resolve(path), targetLocation)
+          if (path.toString.endsWith("mda")) {
+            fileProcessor ! processingType.command(location.resolve(path), targetLocation)
+          } else {
+            ld("... skipped, does not match filter")
+          }
         }
         watchKey.reset()
         self ! Monitor()
