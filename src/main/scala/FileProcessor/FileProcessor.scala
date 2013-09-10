@@ -131,7 +131,7 @@ object FileProcessor {
   }
 
   def moveFileToLocation(file: Path, targetLocation: Path) = {
-    Files.move(file, targetLocation.resolve(file.getFileName), StandardCopyOption.ATOMIC_MOVE)
+    Files.move(file, targetLocation.resolve(file.getFileName), StandardCopyOption.REPLACE_EXISTING)
   }
 
 
