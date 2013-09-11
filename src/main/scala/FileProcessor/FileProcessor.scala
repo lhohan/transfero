@@ -189,8 +189,13 @@ class FileProcessor(config: MonitorConfig) {
         for (event <- watchKey.pollEvents()) {
           val path = event.context().asInstanceOf[Path]
           ld("watcher found: " + path)
-          def filter = new ExtensionFilter("mda")
-          if (filter.filter(path)) {
+          val ext: String = "mda"
+          type PathFilter = Path => Boolean
+          val filter : PathFilter  = {
+            path: Path =>
+              path.toString.endsWith(ext)
+          }
+          if (filter(path)) {
             fileProcessor ! processingType.command(location.resolve(path), targetLocation)
           } else {
             ld("... skipped, does not match filter")
