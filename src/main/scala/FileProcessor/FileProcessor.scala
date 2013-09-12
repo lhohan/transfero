@@ -129,12 +129,11 @@ object LocationMonitorMain extends App {
 
     def getFilter(config: Array[String]): PathFilter = {
       if (config.size > 3) {
-        val ext: String = "mda"
         val filter: PathFilter = {
           path: Path =>
-            path.toString.endsWith(ext)
+            path.toString.contains(config(3))
         }
-        return filter
+        filter
       } else {
         MatchAllPathsFilter
       }
