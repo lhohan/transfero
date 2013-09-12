@@ -131,7 +131,11 @@ object LocationMonitorMain extends App {
       if (config.size > 3) {
         val filter: PathFilter = {
           path: Path =>
-            path.toString.contains(config(3))
+            val b: Boolean = path.toString.contains(config(3))
+            if (b) {
+              ld("(file filter using string '" + config(3) + "' matched)")
+            }
+            b
         }
         filter
       } else {
@@ -224,8 +228,9 @@ class FileProcessor(config: MonitorConfig) {
         watchKey.reset()
         self ! Monitor()
       case StartMonitoring() =>
-        li("Start monitoring location for new files: " + location + "\n" +
-          "\ttarget (using " + processingType + ") is " + targetLocation)
+        val msg: String = "Start monitoring for new files in '" + location + "' and " +
+          processingType.toString.toLowerCase + " them to '" + targetLocation + "'."
+        li(msg + ".")
         self ! Monitor()
     }
   }
