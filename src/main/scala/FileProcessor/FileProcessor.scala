@@ -35,10 +35,12 @@ package object transfero {
 
   case class Monitor()
 
-  case class MonitorConfig(srcLocation: String, targetLocation: String, processingType: ProcessingType, filter: PathFilter = {
-    path: Path => true
-  })
+  case class MonitorConfig(srcLocation: String, targetLocation: String, processingType: ProcessingType, filter: PathFilter = MatchAllPathsFilter)
 
+
+  def MatchAllPathsFilter: (Path) => Boolean = {
+    path: Path => true
+  }
 
   // logging
   val IsDebugEnabled = true
@@ -124,19 +126,25 @@ object LocationMonitorMain extends App {
       !_.startsWith("#")
     }
 
-    val ext: String = "mda"
-    val filter: PathFilter = {
-      path: Path =>
-        path.toString.endsWith(ext)
+
+    def getFilter(config: Array[String]): PathFilter = {
+      if (config.size > 3) {
+        val ext: String = "mda"
+        val filter: PathFilter = {
+          path: Path =>
+            path.toString.endsWith(ext)
+        }
+        return filter
+      } else {
+        MatchAllPathsFilter
+      }
     }
-
-
     val configs = new ArrayBuffer[MonitorConfig]()
     for (configLine <- lines) {
       ld("reading config line: " + configLine)
       val config: Array[String] = configLine.split(",")
       try {
-        configs += new MonitorConfig(config(1), config(2), toProcessingType(config(0)), filter)
+        configs += new MonitorConfig(config(1), config(2), toProcessingType(config(0)), getFilter(config))
       } catch {
         case e: Throwable =>
           li("Error reading config line: \n" + configLine + "\n => Error is: " + e.getMessage)
