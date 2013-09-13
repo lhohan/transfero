@@ -3,6 +3,7 @@
 import akka.actor._
 
 import java.nio.file._
+import java.text.SimpleDateFormat
 import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
@@ -22,6 +23,8 @@ import scala.collection.JavaConversions._
 
 
 package object transfero {
+
+  val formatString = "yyyyMMdd:HHmmss.SSS"
 
   type PathFilter = Path => Boolean
 
@@ -43,19 +46,24 @@ package object transfero {
   }
 
   // logging
-  val IsDebugEnabled = true
+  val IsDebugEnabled = false
   val IsInfoEnabled = true
 
   // quick log debug
   def ld(msg: String) = {
     // akka logger?
-    if (IsDebugEnabled) println("DEBUG " + msg)
+    if (IsDebugEnabled) println("DEBUG " + getNow + " - " + msg)
   }
 
   // quick log info
   def li(msg: String) = {
     // akka logger?
-    if (IsInfoEnabled) println("INFO " + msg)
+    if (IsInfoEnabled) println("INFO " + getNow + " - " + msg)
+  }
+
+  def getNow:String = {
+    val now = new java.util.Date
+    new SimpleDateFormat(formatString) format now
   }
 
   sealed trait ProcessingType {
